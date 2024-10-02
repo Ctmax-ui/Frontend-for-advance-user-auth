@@ -1,21 +1,72 @@
 import React, { useContext, useState } from "react";
 import { AuthConst } from "../../contexts/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
+import { ToastContainer, toast, Bounce } from "react-toastify";
 
-const LoginPage = () => {
-  const {login} = useContext(AuthConst);
-  const [userEmail, setUserEmail] = useState('');
-  const [password, setPassword] = useState('');
-
+const LoginPage = ({ hasAccess }) => {
+  const { login } = useContext(AuthConst);
+  const [userEmail, setUserEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    await login(userEmail, password);
+    e.preventDefault();
+    const result = await login(userEmail, password);
+    console.log(result);
+
+    if (result.response.status == 429) {
+      const timeUntilReset = result.response.data.remainingTime;
+      const minutes = Math.floor(timeUntilReset / 60);
+      const seconds = timeUntilReset % 60;
+      const timeString = `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+      const message =
+        "You have exceeded the maximum number of login attempts. Please try again after";
+      toast.error(`${message} ${timeString} minutes.`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+
+    if(result.response.status == 403){
+      const timeUntilReset = result.response.data.remainingTime;
+      toast.error(`Due to too meny attempts your account is locked until ${Math.floor(timeUntilReset / 60)}: ${timeUntilReset % 60 < 10 ? "0" : ""}${timeUntilReset % 60} minutes.`, {
+        position: "top-right",
+        autoClose: 1000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+    }
+
   };
 
   return (
     <>
+      <ToastContainer />
       <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-5 sm:px-6 lg:px-8">
+        <Link to="/" className="hover:text-red-500 my-1">
+          home
+        </Link>
+        <Link to="/logout" className="hover:text-red-500 my-1">
+          logout
+        </Link>
+        <Link to="/profile" className="hover:text-red-500 my-1">
+          profile
+        </Link>
+        <Link to="/login" className="hover:text-red-500 my-1">
+          login
+        </Link>
+
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
@@ -23,7 +74,7 @@ const LoginPage = () => {
           <p className="mt-2 text-center text-sm text-gray-600 max-w">
             Or
             <Link
-            to="/createaccount"
+              to="/createaccount"
               className="font-medium text-blue-600 hover:text-blue-500 ps-2"
             >
               Create an account
@@ -50,7 +101,8 @@ const LoginPage = () => {
                     required
                     className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     placeholder="Enter your email address"
-                    value={userEmail} onChange={e => setUserEmail(e.target.value)}
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
                   />
                 </div>
               </div>
@@ -71,7 +123,8 @@ const LoginPage = () => {
                     required
                     className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                     placeholder="Enter your password"
-                    value={password} onChange={e => setPassword(e.target.value)}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
               </div>
@@ -154,7 +207,6 @@ const LoginPage = () => {
                         d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
                       ></path>
                     </svg>
-
                     Sign in with Google
                   </a>
                 </div>

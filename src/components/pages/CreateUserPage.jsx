@@ -1,14 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaEye } from "react-icons/fa";
 import dataUploader from "../../functions/dataUploader";
-import { ToastContainer, toast, Bounce } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast, Bounce } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const CreateUserPage = () => {
   const formInput = useRef();
-  const [inputErr, setInputErr] = useState({ nameErr:"Name cannot be empty.", passErr:"Password cannot be empty.",emailErr:"Email cannot be empty."});
-  const [grantAccess, setGrantAccess]= useState(false)
+  const [inputErr, setInputErr] = useState({
+    nameErr: "Name cannot be empty.",
+    passErr: "Password cannot be empty.",
+    emailErr: "Email cannot be empty.",
+  });
+  const [grantAccess, setGrantAccess] = useState(false);
 
   const handleOnChange = () => {
     let userName = formInput.current[0].value;
@@ -20,45 +25,43 @@ const CreateUserPage = () => {
     if (userName.length < 3) {
       errors.nameErr = "Name should be at least 3 characters.";
     }
-  
+
     if (password.length < 4) {
       errors.passErr = "Password should be at least 4 characters.";
     }
-  
+
     if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(userEmail.trim())) {
       errors.emailErr = "Please enter a correct Email.";
     }
-  
+
     setInputErr(errors);
-  
+
     if (errors.nameErr || errors.passErr || errors.emailErr) {
-      
       return;
     }
-    
-    setGrantAccess(true)
+
+    setGrantAccess(true);
   };
 
   const handleOnCreateSubmit = async (e) => {
     e.preventDefault();
 
-    if(!grantAccess){
-      return
+    if (!grantAccess) {
+      return;
     }
-
-    const result = await dataUploader(
-      "http://localhost:3000/api/v1/user",
-      "POST",
+    
+    const result = await axios.post(
+      "http://localhost:3000/api/v1/createuser",
       {
         userName: formInput.current[0].value,
         userEmail: formInput.current[1].value,
         password: formInput.current[2].value,
-      }
+      },
+      { withCredentials: true }
     );
 
     console.log(result);
-    if(result.message){
-    
+    if (result.message) {
       toast.success(result.message, {
         position: "top-right",
         autoClose: 5000,
@@ -69,14 +72,18 @@ const CreateUserPage = () => {
         progress: undefined,
         theme: "light",
         transition: Bounce,
-        });
-      setGrantAccess(false)
+      });
+      setGrantAccess(false);
 
-      formInput.current[0].value = ""
-      formInput.current[1].value = ""
-      formInput.current[2].value = ""
+      formInput.current[0].value = "";
+      formInput.current[1].value = "";
+      formInput.current[2].value = "";
 
-      setInputErr({ nameErr:"Name cannot be empty.", passErr:"Password cannot be empty.",emailErr:"Email cannot be empty."})
+      setInputErr({
+        nameErr: "Name cannot be empty.",
+        passErr: "Password cannot be empty.",
+        emailErr: "Email cannot be empty.",
+      });
     }
   };
 
@@ -89,7 +96,7 @@ const CreateUserPage = () => {
 
   return (
     <>
-<ToastContainer />
+      <ToastContainer />
 
       <div className="font-[sans-serif] bg-gray-50 flex items-center md:h-screen p-4">
         <div className="w-full max-w-4xl max-md:max-w-xl mx-auto">
@@ -196,7 +203,11 @@ const CreateUserPage = () => {
 
               <div className="space-y-6">
                 <div>
-                  <label className={`text-gray-800 text-sm mb-2 block ${inputErr.nameErr? 'text-red-500':'text-gray-800 '}`}>
+                  <label
+                    className={`text-gray-800 text-sm mb-2 block ${
+                      inputErr.nameErr ? "text-red-500" : "text-gray-800 "
+                    }`}
+                  >
                     Name
                   </label>
                   <div className="relative flex items-center">
@@ -218,7 +229,11 @@ const CreateUserPage = () => {
                   </span>
                 </div>
                 <div>
-                  <label className={`text-gray-800 text-sm mb-2 block ${inputErr.emailErr? 'text-red-500':'text-gray-800 '}`}>
+                  <label
+                    className={`text-gray-800 text-sm mb-2 block ${
+                      inputErr.emailErr ? "text-red-500" : "text-gray-800 "
+                    }`}
+                  >
                     Email Id
                   </label>
                   <div className="relative flex items-center">
@@ -240,7 +255,11 @@ const CreateUserPage = () => {
                   </span>
                 </div>
                 <div>
-                  <label className={`text-sm mb-2 font-medium block ${inputErr.passErr? 'text-red-500':'text-gray-800 '}`}>
+                  <label
+                    className={`text-sm mb-2 font-medium block ${
+                      inputErr.passErr ? "text-red-500" : "text-gray-800 "
+                    }`}
+                  >
                     Password
                   </label>
                   <div className="relative flex items-center  password-form">
@@ -266,7 +285,7 @@ const CreateUserPage = () => {
                   </div>
 
                   <span className="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1">
-                    {inputErr.passErr? inputErr.passErr : ""}
+                    {inputErr.passErr ? inputErr.passErr : ""}
                   </span>
                 </div>
                 {/* <div className="flex items-center">
