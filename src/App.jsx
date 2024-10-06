@@ -8,6 +8,7 @@ import NotFoundPage from "./components/pages/NotFoundPage";
 import Logout from "./components/pages/Logout";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import UpdateUser from "./components/pages/UpdateUser";
 
 function App() {
 
@@ -41,7 +42,9 @@ function App() {
         <Route path="/" element={<HomePage hasAccess={hasAccess} />} />
 
         <Route path="/logout" element={hasAccess?<Logout hasAccess={hasAccess} />:<Navigate to={"/"} />} />
-        <Route path="/profile" element={hasAccess? <UserProfile hasAccess={hasAccess} />:<Navigate to={"/logout"}/>} />
+        <Route path="/profile" element={hasAccess? <UserProfile hasAccess={hasAccess} />:<Navigate to={"/login"}/>} />
+        <Route path="/update" element={hasAccess? <UpdateUser hasAccess={hasAccess} />:<Navigate to={"/login"}/>} />
+
         <Route path="*" element={hasAccess? <NotFoundPage />:<Navigate to={"/login"}/>} />
 
         <Route path="/createaccount" element={hasAccess? <Navigate to={"/"} /> : <CreateUserPage hasAccess={hasAccess} />} />

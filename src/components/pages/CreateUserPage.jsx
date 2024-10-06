@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { FaEye } from "react-icons/fa";
-import dataUploader from "../../functions/dataUploader";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import { AuthConst } from "../../contexts/AuthContext";
 
 const CreateUserPage = () => {
   const formInput = useRef();
@@ -13,6 +12,7 @@ const CreateUserPage = () => {
     passErr: "Password cannot be empty.",
     emailErr: "Email cannot be empty.",
   });
+  const { register } = useContext(AuthConst);
   const [grantAccess, setGrantAccess] = useState(false);
 
   const handleOnChange = () => {
@@ -49,18 +49,14 @@ const CreateUserPage = () => {
     if (!grantAccess) {
       return;
     }
-    
-    const result = await axios.post(
-      "http://localhost:3000/api/v1/createuser",
-      {
-        userName: formInput.current[0].value,
-        userEmail: formInput.current[1].value,
-        password: formInput.current[2].value,
-      },
-      { withCredentials: true }
-    );
 
+    const result = await register(
+      formInput.current[0].value,
+      formInput.current[1].value,
+      formInput.current[2].value
+    );
     console.log(result);
+
     if (result.message) {
       toast.success(result.message, {
         position: "top-right",

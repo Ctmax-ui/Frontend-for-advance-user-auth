@@ -2,16 +2,26 @@ import React, { useContext, useState } from "react";
 import { AuthConst } from "../../contexts/AuthContext";
 import { Link, Navigate } from "react-router-dom";
 import { ToastContainer, toast, Bounce } from "react-toastify";
+import { FaEye } from "react-icons/fa";
 
-const LoginPage = ({ hasAccess }) => {
+
+const showAndHidePassword = (e) => {
+  let passwordInput = e.target.closest("div").children[0];
+  passwordInput && passwordInput.type === "password"
+    ? (passwordInput.type = "text")
+    : (passwordInput.type = "password");
+};
+
+const LoginPage = () => {
   const { login } = useContext(AuthConst);
   const [userEmail, setUserEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fetchedData,setFetchedData]=useState(null)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await login(userEmail, password);
-    console.log(result);
+    setFetchedData(result.response.data);
 
     if (result.response.status == 429) {
       const timeUntilReset = result.response.data.remainingTime;
@@ -31,7 +41,7 @@ const LoginPage = ({ hasAccess }) => {
         theme: "light",
         transition: Bounce,
       });
-    }
+    };
 
     if(result.response.status == 403){
       const timeUntilReset = result.response.data.remainingTime;
@@ -46,9 +56,11 @@ const LoginPage = ({ hasAccess }) => {
         theme: "light",
         transition: Bounce,
       });
-    }
-
+    };
   };
+
+
+
 
   return (
     <>
@@ -103,6 +115,7 @@ const LoginPage = ({ hasAccess }) => {
                     placeholder="Enter your email address"
                     value={userEmail}
                     onChange={(e) => setUserEmail(e.target.value)}
+                    
                   />
                 </div>
               </div>
@@ -114,7 +127,7 @@ const LoginPage = ({ hasAccess }) => {
                 >
                   Password
                 </label>
-                <div className="mt-1">
+                <div className="mt-1 relative flex items-center password-form">
                   <input
                     id="password"
                     name="password"
@@ -126,7 +139,16 @@ const LoginPage = ({ hasAccess }) => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
+                   <a
+                      href="#"
+                      onClick={showAndHidePassword}
+                      className=" absolute right-0 z-10 text-slate-700 h-full flex justify-center items-center px-4 "
+                    >
+                      <FaEye />
+                    </a>
                 </div>
+
+                <span className="text-red-400 text-center w-full block mt-4 font-medium ">{fetchedData && fetchedData.message}</span>
               </div>
 
               <div className="flex items-center justify-between">
